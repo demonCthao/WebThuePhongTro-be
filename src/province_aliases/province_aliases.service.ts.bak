@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateProvinceAliasDto } from './dto/create-province_alias.dto.js';
+import { UpdateProvinceAliasDto } from './dto/update-province_alias.dto.js';
+
+@Injectable()
+export class ProvinceAliasesService {
+  create(createProvinceAliasDto: CreateProvinceAliasDto) {
+    return 'This action adds a new provinceAlias';
+  }
+
+  findAll() {
+    return `This action returns all provinceAliases`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} provinceAlias`;
+  }
+
+  update(id: number, updateProvinceAliasDto: UpdateProvinceAliasDto) {
+    return `This action updates a #${id} provinceAlias`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} provinceAlias`;
+  }
+}

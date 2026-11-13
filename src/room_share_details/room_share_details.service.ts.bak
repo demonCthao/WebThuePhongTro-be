@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateRoomShareDetailDto } from './dto/create-room_share_detail.dto.js';
+import { UpdateRoomShareDetailDto } from './dto/update-room_share_detail.dto.js';
+
+@Injectable()
+export class RoomShareDetailsService {
+  create(createRoomShareDetailDto: CreateRoomShareDetailDto) {
+    return 'This action adds a new roomShareDetail';
+  }
+
+  findAll() {
+    return `This action returns all roomShareDetails`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} roomShareDetail`;
+  }
+
+  update(id: number, updateRoomShareDetailDto: UpdateRoomShareDetailDto) {
+    return `This action updates a #${id} roomShareDetail`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} roomShareDetail`;
+  }
+}

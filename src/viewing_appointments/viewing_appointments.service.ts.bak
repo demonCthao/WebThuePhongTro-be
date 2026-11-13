@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateViewingAppointmentDto } from './dto/create-viewing_appointment.dto.js';
+import { UpdateViewingAppointmentDto } from './dto/update-viewing_appointment.dto.js';
+
+@Injectable()
+export class ViewingAppointmentsService {
+  create(createViewingAppointmentDto: CreateViewingAppointmentDto) {
+    return 'This action adds a new viewingAppointment';
+  }
+
+  findAll() {
+    return `This action returns all viewingAppointments`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} viewingAppointment`;
+  }
+
+  update(id: number, updateViewingAppointmentDto: UpdateViewingAppointmentDto) {
+    return `This action updates a #${id} viewingAppointment`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} viewingAppointment`;
+  }
+}

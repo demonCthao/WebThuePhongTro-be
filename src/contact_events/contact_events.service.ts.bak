@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateContactEventDto } from './dto/create-contact_event.dto.js';
+import { UpdateContactEventDto } from './dto/update-contact_event.dto.js';
+
+@Injectable()
+export class ContactEventsService {
+  create(createContactEventDto: CreateContactEventDto) {
+    return 'This action adds a new contactEvent';
+  }
+
+  findAll() {
+    return `This action returns all contactEvents`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} contactEvent`;
+  }
+
+  update(id: number, updateContactEventDto: UpdateContactEventDto) {
+    return `This action updates a #${id} contactEvent`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} contactEvent`;
+  }
+}

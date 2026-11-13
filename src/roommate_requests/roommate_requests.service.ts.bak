@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateRoommateRequestDto } from './dto/create-roommate_request.dto.js';
+import { UpdateRoommateRequestDto } from './dto/update-roommate_request.dto.js';
+
+@Injectable()
+export class RoommateRequestsService {
+  create(createRoommateRequestDto: CreateRoommateRequestDto) {
+    return 'This action adds a new roommateRequest';
+  }
+
+  findAll() {
+    return `This action returns all roommateRequests`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} roommateRequest`;
+  }
+
+  update(id: number, updateRoommateRequestDto: UpdateRoommateRequestDto) {
+    return `This action updates a #${id} roommateRequest`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} roommateRequest`;
+  }
+}

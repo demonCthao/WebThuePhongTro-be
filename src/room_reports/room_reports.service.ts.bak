@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateRoomReportDto } from './dto/create-room_report.dto.js';
+import { UpdateRoomReportDto } from './dto/update-room_report.dto.js';
+
+@Injectable()
+export class RoomReportsService {
+  create(createRoomReportDto: CreateRoomReportDto) {
+    return 'This action adds a new roomReport';
+  }
+
+  findAll() {
+    return `This action returns all roomReports`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} roomReport`;
+  }
+
+  update(id: number, updateRoomReportDto: UpdateRoomReportDto) {
+    return `This action updates a #${id} roomReport`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} roomReport`;
+  }
+}

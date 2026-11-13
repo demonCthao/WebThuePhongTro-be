@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateRoomMediaDto } from './dto/create-room_media.dto.js';
+import { UpdateRoomMediaDto } from './dto/update-room_media.dto.js';
+
+@Injectable()
+export class RoomMediaService {
+  create(createRoomMediaDto: CreateRoomMediaDto) {
+    return 'This action adds a new roomMedia';
+  }
+
+  findAll() {
+    return `This action returns all roomMedia`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} roomMedia`;
+  }
+
+  update(id: number, updateRoomMediaDto: UpdateRoomMediaDto) {
+    return `This action updates a #${id} roomMedia`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} roomMedia`;
+  }
+}

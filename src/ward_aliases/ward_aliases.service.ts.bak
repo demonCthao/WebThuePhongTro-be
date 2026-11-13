@@ -1,0 +1,26 @@
+import { Injectable } from '@nestjs/common';
+import { CreateWardAliasDto } from './dto/create-ward_alias.dto.js';
+import { UpdateWardAliasDto } from './dto/update-ward_alias.dto.js';
+
+@Injectable()
+export class WardAliasesService {
+  create(createWardAliasDto: CreateWardAliasDto) {
+    return 'This action adds a new wardAlias';
+  }
+
+  findAll() {
+    return `This action returns all wardAliases`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} wardAlias`;
+  }
+
+  update(id: number, updateWardAliasDto: UpdateWardAliasDto) {
+    return `This action updates a #${id} wardAlias`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} wardAlias`;
+  }
+}
