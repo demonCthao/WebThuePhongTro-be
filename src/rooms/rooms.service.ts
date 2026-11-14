@@ -19,6 +19,11 @@ export interface FindAllByPriceQuery extends FindAllQuery {
   maxPrice?: number;
   province?: string;
   ward?: string;
+  areaM2?: number;
+}
+
+export interface FindAllByCategoryQuery extends FindAllQuery {
+  category?: string;
 }
 
 @Injectable()
@@ -36,6 +41,7 @@ export class RoomsService {
     maxPrice,
     province = "",
     ward = "",
+    areaM2 = 0
   }: FindAllByPriceQuery = {}): Promise<PaginatedResult<RoomsSafe>> {
     const page = Math.max(1, Number(pageIndex) || 1);
 
@@ -64,6 +70,14 @@ export class RoomsService {
     };
 
     const where = {
+      ...(Number(areaM2) > 0
+        ? {
+          area_m2: {
+            gte: Number(areaM2),
+          },
+        }
+        : {}),
+
       price_monthly: {
         gte: min,
         ...(maxPrice != undefined && maxPrice != 0
@@ -112,7 +126,8 @@ export class RoomsService {
   async findAll({
     pageIndex = 1,
     pageSize = 10,
-  }: FindAllQuery = {}): Promise<PaginatedResult<RoomsSafe>> {
+    category = "",
+  }: FindAllByCategoryQuery = {}): Promise<PaginatedResult<RoomsSafe>> {
     const page = Math.max(1, Number(pageIndex) || 1);
 
     const limit = Math.min(
@@ -120,21 +135,37 @@ export class RoomsService {
       Math.max(1, Number(pageSize) || 10),
     );
 
+    const where = {
+      ...(category?.trim()
+        ? {
+          room_categories: {
+            is: {
+              code: category.trim(),
+            },
+          },
+        }
+        : {}),
+    };
+
     const [list, total] = await prisma.$transaction([
       prisma.rooms.findMany({
+        where,
         skip: (page - 1) * limit,
         take: limit,
         include: {
           room_media: true,
           provinces: true,
-          wards: true
+          wards: true,
+          room_categories: true,
         },
         orderBy: {
           id: 'desc',
         },
       }),
 
-      prisma.rooms.count(),
+      prisma.rooms.count({
+        where,
+      }),
     ]);
 
     return {

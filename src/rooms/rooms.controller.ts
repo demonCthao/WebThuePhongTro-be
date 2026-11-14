@@ -1,9 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
-import { RoomsService } from './rooms.service.js';
-import type { FindAllByPriceQuery } from './rooms.service.js';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto.js';
 import { UpdateRoomDto } from './dto/update-room.dto.js';
-import { FindAllQuery } from '../common/dto/find-all-query.dto.js';
+import type { FindAllByCategoryQuery, FindAllByPriceQuery } from './rooms.service.js';
+import { RoomsService } from './rooms.service.js';
 
 @Controller('rooms')
 export class RoomsController {
@@ -15,7 +14,7 @@ export class RoomsController {
   }
 
   @Get()
-  findAll(@Query() query: FindAllQuery) {
+  findAll(@Query() query: FindAllByCategoryQuery) {
     return this.roomsService.findAll(query);
   }
 
