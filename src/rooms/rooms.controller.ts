@@ -18,6 +18,11 @@ export class RoomsController {
     return this.roomsService.findAll(query);
   }
 
+  @Get("/recommended")
+  recommended(@Query() query: FindAllByCategoryQuery) {
+    return this.roomsService.recommended(query);
+  }
+
   @Get("/by-price")
   findAllByPrice(@Query() query: FindAllByPriceQuery) {
     try {

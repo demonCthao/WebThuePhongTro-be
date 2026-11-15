@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { WardsService } from './wards.service.js';
+import type { FindAllWardQuery } from './wards.service.js';
 import { CreateWardDto } from './dto/create-ward.dto.js';
 import { UpdateWardDto } from './dto/update-ward.dto.js';
 
@@ -13,8 +14,8 @@ export class WardsController {
   }
 
   @Get()
-  findAll() {
-    return this.wardsService.findAll();
+  findAll(@Query() query: FindAllWardQuery) {
+    return this.wardsService.findAll(query);
   }
 
   @Get(':id')

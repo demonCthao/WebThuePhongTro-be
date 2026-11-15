@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { ProvincesService } from './provinces.service.js';
+import type { FindAllProvinceQuery } from './provinces.service.js';
 import { CreateProvinceDto } from './dto/create-province.dto.js';
 import { UpdateProvinceDto } from './dto/update-province.dto.js';
 
@@ -18,8 +19,8 @@ export class ProvincesController {
   }
 
   @Get()
-  findProvincesWithPagination() {
-    return this.provincesService.findProvincesWithPagination();
+  findProvincesWithPagination(@Query() query: FindAllProvinceQuery) {
+    return this.provincesService.findProvincesWithPagination(query);
   }
 
   @Get(':id')

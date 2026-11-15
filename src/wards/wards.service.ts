@@ -14,6 +14,11 @@ import { PaginatedResult } from '../common/interfaces/pagination.interface.js';
 
 type WardsSafe = Prisma.wardsGetPayload<{}>;
 
+export interface FindAllWardQuery extends FindAllQuery {
+  name?: string;
+  code?: string
+}
+
 @Injectable()
 export class WardsService {
   create(createWardDto: CreateWardDto) {
@@ -23,9 +28,11 @@ export class WardsService {
   }
 
   async findAll({
+    name = "",
+    code = "",
     pageIndex = 1,
     pageSize = 10,
-  }: FindAllQuery = {}): Promise<PaginatedResult<WardsSafe>> {
+  }: FindAllWardQuery = {}): Promise<PaginatedResult<WardsSafe>> {
     const page = Math.max(1, Number(pageIndex) || 1);
 
     const limit = Math.min(
@@ -33,16 +40,37 @@ export class WardsService {
       Math.max(1, Number(pageSize) || 10),
     );
 
+    const where = {
+      ...(name.trim()
+        ? {
+          full_name: {
+            contains: name.trim(),
+          },
+        }
+        : {}),
+
+      ...(code.trim()
+        ? {
+          code: {
+            contains: code.trim(),
+          },
+        }
+        : {}),
+    };
+
     const [list, total] = await prisma.$transaction([
       prisma.wards.findMany({
+        where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
-          id: 'desc',
+          id: "desc",
         },
       }),
 
-      prisma.wards.count(),
+      prisma.wards.count({
+        where,
+      }),
     ]);
 
     return {

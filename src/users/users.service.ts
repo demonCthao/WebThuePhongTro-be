@@ -1,10 +1,9 @@
 import {
   Injectable,
-  NotFoundException,
-  UnauthorizedException,
+  NotFoundException
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 import { Prisma } from '../generated/prisma/client.js';
 import { prisma } from '../lib/prisma.js';
@@ -19,6 +18,12 @@ import { RegisterDto } from './dto/register.dto.js';
 
 type UsersSafe = Prisma.usersGetPayload<{}>;
 
+export interface FindAllUserQuery extends FindAllQuery {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -32,9 +37,12 @@ export class UsersService {
   }
 
   async findAll({
+    name = "",
+    email = "",
+    phone = "",
     pageIndex = 1,
     pageSize = 10,
-  }: FindAllQuery = {}): Promise<PaginatedResult<UsersSafe>> {
+  }: FindAllUserQuery = {}): Promise<PaginatedResult<UsersSafe>> {
     const page = Math.max(1, Number(pageIndex) || 1);
 
     const limit = Math.min(
@@ -42,16 +50,45 @@ export class UsersService {
       Math.max(1, Number(pageSize) || 10),
     );
 
+    const where = {
+      ...(name.trim()
+        ? {
+          full_name: {
+            contains: name.trim(),
+          },
+        }
+        : {}),
+
+      ...(email.trim()
+        ? {
+          email: {
+            contains: email.trim(),
+          },
+        }
+        : {}),
+
+      ...(phone.trim()
+        ? {
+          phone: {
+            contains: phone.trim(),
+          },
+        }
+        : {}),
+    };
+
     const [list, total] = await prisma.$transaction([
       prisma.users.findMany({
+        where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
-          id: 'desc',
+          id: "desc",
         },
       }),
 
-      prisma.users.count(),
+      prisma.users.count({
+        where,
+      }),
     ]);
 
     return {

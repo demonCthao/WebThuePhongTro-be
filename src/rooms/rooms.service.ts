@@ -238,4 +238,36 @@ export class RoomsService {
       },
     });
   }
+
+  async recommended({
+    category = "",
+  }: FindAllByCategoryQuery = {}): Promise<RoomsSafe[]> {
+    return await prisma.rooms.findMany({
+      where: {
+        status: "approved",
+        room_categories: {
+          is: {
+            code: category.trim(),
+          },
+        },
+        deleted_at: null,
+        OR: [
+          { expires_at: null },
+          { expires_at: { gt: new Date() } },
+        ],
+      },
+      include: {
+        room_stats: true,
+        room_media: true,
+        room_categories: true,
+        provinces: true,
+        wards: true,
+      },
+      orderBy: [
+        { vip_level: "desc" },
+        { published_at: "desc" },
+      ],
+      take: 3,
+    });
+  }
 }

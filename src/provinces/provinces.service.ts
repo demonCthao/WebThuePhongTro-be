@@ -14,6 +14,7 @@ type ProvincesSafe = Prisma.provincesGetPayload<{}>;
 
 export interface FindAllProvinceQuery extends FindAllQuery {
   name?: string;
+  code?: string;
 }
 
 @Injectable()
@@ -37,10 +38,11 @@ export class ProvincesService {
   }
 
   async findProvincesWithPagination({
-      name = "",
-      pageIndex = 1,
-      pageSize = 10,
-    }: FindAllProvinceQuery = {}): Promise<PaginatedResult<ProvincesSafe>> {
+    name = "",
+    code = "",
+    pageIndex = 1,
+    pageSize = 10,
+  }: FindAllProvinceQuery = {}): Promise<PaginatedResult<ProvincesSafe>> {
     const page = Math.max(1, Number(pageIndex) || 1);
 
     const limit = Math.min(
@@ -48,16 +50,37 @@ export class ProvincesService {
       Math.max(1, Number(pageSize) || 10),
     );
 
+    const where = {
+      ...(name.trim()
+        ? {
+          full_name: {
+            contains: name.trim(),
+          },
+        }
+        : {}),
+
+      ...(code.trim()
+        ? {
+          code: {
+            contains: code.trim(),
+          },
+        }
+        : {}),
+    };
+
     const [list, total] = await prisma.$transaction([
       prisma.provinces.findMany({
+        where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
-          id: 'desc',
+          id: "desc",
         },
       }),
 
-      prisma.provinces.count(),
+      prisma.provinces.count({
+        where,
+      }),
     ]);
 
     return {
