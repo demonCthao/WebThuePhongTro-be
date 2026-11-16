@@ -14,6 +14,10 @@ import { PaginatedResult } from '../common/interfaces/pagination.interface.js';
 
 type BlogPostsSafe = Prisma.blog_postsGetPayload<{}>;
 
+export interface FindAllBlogPostsQuery extends FindAllQuery {
+  title?: string
+}
+
 @Injectable()
 export class BlogPostsService {
   create(createBlogPostDto: CreateBlogPostDto) {
@@ -22,10 +26,12 @@ export class BlogPostsService {
     });
   }
 
+
   async findAll({
+    title = "",
     pageIndex = 1,
     pageSize = 10,
-  }: FindAllQuery = {}): Promise<PaginatedResult<BlogPostsSafe>> {
+  }: FindAllBlogPostsQuery = {}): Promise<PaginatedResult<BlogPostsSafe>> {
     const page = Math.max(1, Number(pageIndex) || 1);
 
     const limit = Math.min(
@@ -33,16 +39,27 @@ export class BlogPostsService {
       Math.max(1, Number(pageSize) || 10),
     );
 
+    const where: Prisma.blog_postsWhereInput = {
+      ...(title.trim() && {
+        title: {
+          contains: title.trim(),
+        },
+      }),
+    };
+
     const [list, total] = await prisma.$transaction([
       prisma.blog_posts.findMany({
+        where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
-          id: 'desc',
+          id: "desc",
         },
       }),
 
-      prisma.blog_posts.count(),
+      prisma.blog_posts.count({
+        where,
+      }),
     ]);
 
     return {
@@ -53,6 +70,7 @@ export class BlogPostsService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
 
   async findOne(id: bigint) {
     const result = await prisma.blog_posts.findUnique({

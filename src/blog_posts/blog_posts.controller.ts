@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { BlogPostsService } from './blog_posts.service.js';
+import type { FindAllBlogPostsQuery } from './blog_posts.service.js';
 import { CreateBlogPostDto } from './dto/create-blog_post.dto.js';
 import { UpdateBlogPostDto } from './dto/update-blog_post.dto.js';
 
@@ -13,8 +14,8 @@ export class BlogPostsController {
   }
 
   @Get()
-  findAll() {
-    return this.blogPostsService.findAll();
+  findAll(@Query() query: FindAllBlogPostsQuery) {
+    return this.blogPostsService.findAll(query);
   }
 
   @Get(':id')
