@@ -20,10 +20,17 @@ export interface FindAllByPriceQuery extends FindAllQuery {
   province?: string;
   ward?: string;
   areaM2?: number;
+  amenities?: string[];
 }
 
 export interface FindAllByCategoryQuery extends FindAllQuery {
   category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  province?: string;
+  ward?: string;
+  areaM2?: number;
+  amenities?: string[];
 }
 
 @Injectable()
@@ -127,13 +134,44 @@ export class RoomsService {
     pageIndex = 1,
     pageSize = 10,
     category = "",
+    minPrice = 0,
+    maxPrice,
+    province = "",
+    ward = "",
+    areaM2 = 0,
+    amenities = []
   }: FindAllByCategoryQuery = {}): Promise<PaginatedResult<RoomsSafe>> {
     const page = Math.max(1, Number(pageIndex) || 1);
-
+    const min = BigInt(minPrice);
     const limit = Math.min(
       100,
       Math.max(1, Number(pageSize) || 10),
     );
+
+    const amenityCodes = (
+      Array.isArray(amenities)
+        ? amenities
+        : amenities
+          ? [amenities]
+          : []
+    ).filter(Boolean);
+
+    const wardFilter = {
+      ...(province?.trim()
+        ? {
+          provinces: {
+            is: {
+              code: province.trim(),
+            },
+          },
+        }
+        : {}),
+      ...(ward?.trim()
+        ? {
+          code: ward.trim(),
+        }
+        : {}),
+    };
 
     const where = {
       ...(category?.trim()
@@ -143,6 +181,43 @@ export class RoomsService {
               code: category.trim(),
             },
           },
+        }
+        : {}),
+      ...(Number(areaM2) > 0
+        ? {
+          area_m2: {
+            gte: Number(areaM2),
+          },
+        }
+        : {}),
+
+      price_monthly: {
+        gte: min,
+        ...(maxPrice != undefined && maxPrice != 0
+          ? { lte: BigInt(maxPrice) }
+          : {}),
+      },
+
+      ...(Object.keys(wardFilter).length > 0
+        ? {
+          wards: {
+            is: wardFilter,
+          },
+        }
+        : {}),
+      ...(amenityCodes.length > 0
+        ? {
+          AND: amenityCodes.map((code) => ({
+            room_amenities: {
+              some: {
+                amenities: {
+                  is: {
+                    code,
+                  },
+                },
+              },
+            },
+          })),
         }
         : {}),
     };
@@ -157,6 +232,11 @@ export class RoomsService {
           provinces: true,
           wards: true,
           room_categories: true,
+          room_amenities: {
+            include: {
+              amenities: true
+            }
+          }
         },
         orderBy: {
           id: 'desc',

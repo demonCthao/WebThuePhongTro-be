@@ -2,10 +2,16 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersController } from '../users/users.controller.js';
 import { UsersService } from '../users/users.service.js';
+import { RedisModule } from './redis.module.js';
+import { MailModule } from './mail.module.js';
+import { SmsModule } from './sms.module.js';
 
 
 @Module({
   imports: [
+    RedisModule,
+    MailModule,
+    SmsModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
