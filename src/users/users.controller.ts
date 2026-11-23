@@ -47,20 +47,20 @@ export class UsersController {
     return this.usersService.register(registerDto)
   }
 
-  @Post('send-otp')
+  @Post('send-otp/:id')
   sendOtp(
-    @CurrentUser('id') userId: number,
+    @Param('id') id: string,
     @Body() dto: SendOtpDto,
   ) {
-    return this.usersService.sendOtp(userId, dto);
+    return this.usersService.sendOtp(id, dto);
   }
 
-  @Post('verify-otp')
+  @Post('verify-otp/:id')
   verifyOtp(
-    @CurrentUser('id') userId: number,
+    @Param('id') id: string,
     @Body() dto: VerifyOtpDto,
   ) {
-    return this.usersService.verifyOtp(userId, dto);
+    return this.usersService.verifyOtp(id, dto);
   }
 
 

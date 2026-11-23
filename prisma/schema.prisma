@@ -113,6 +113,7 @@ model provinces {
   center_lng       Decimal?           @db.Decimal(9, 6)
   sort_order       Int                @default(0) @db.SmallInt
   is_active        Boolean            @default(true)
+  ads              ads[]
   province_aliases province_aliases[]
   rooms            rooms[]
   wards            wards[]
@@ -357,6 +358,8 @@ model users {
   created_at                                                    DateTime               @default(now()) @db.DateTime(0)
   updated_at                                                    DateTime               @default(now()) @db.DateTime(0)
   deleted_at                                                    DateTime?              @db.DateTime(0)
+  ad_events                                                     ad_events[]
+  ads                                                           ads[]
   blog_posts                                                    blog_posts[]
   contact_events                                                contact_events[]
   room_likes                                                    room_likes[]
@@ -434,6 +437,75 @@ model wards {
   @@unique([province_id, slug], map: "uq_wards_province_slug")
   @@index([merged_into], map: "fk_wards_merged")
   @@index([province_id, name_search], map: "idx_wards_name_search")
+}
+
+model ad_events {
+  id         BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  ad_id      BigInt               @db.UnsignedBigInt
+  user_id    BigInt?              @db.UnsignedBigInt
+  event_type ad_events_event_type
+  session_id String?              @db.VarChar(100)
+  ip_hash    String?              @db.Char(64)
+  user_agent String?              @db.VarChar(255)
+  referrer   String?              @db.VarChar(500)
+  created_at DateTime             @default(now()) @db.DateTime(0)
+  ads        ads                  @relation(fields: [ad_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_ad_events_ad")
+  users      users?               @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "fk_ad_events_user")
+
+  @@index([ad_id, event_type, created_at], map: "idx_ad_events_ad")
+  @@index([user_id, created_at], map: "idx_ad_events_user")
+}
+
+model ad_placements {
+  id          Int     @id @default(autoincrement()) @db.UnsignedSmallInt
+  code        String  @unique(map: "uq_ad_placements_code") @db.VarChar(50)
+  name        String  @db.VarChar(100)
+  description String? @db.VarChar(255)
+  width_px    Int?    @db.UnsignedSmallInt
+  height_px   Int?    @db.UnsignedSmallInt
+  max_ads     Int     @default(1) @db.UnsignedTinyInt
+  is_active   Boolean @default(true)
+  ads         ads[]
+}
+
+model ad_stats {
+  ad_id            BigInt @id @db.UnsignedBigInt
+  impression_count Int    @default(0)
+  click_count      Int    @default(0)
+  ads              ads    @relation(fields: [ad_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_ad_stats_ad")
+}
+
+model ads {
+  id               BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  placement_id     Int           @db.UnsignedSmallInt
+  title            String        @db.VarChar(150)
+  image_url        String        @db.VarChar(500)
+  image_mobile_url String?       @db.VarChar(500)
+  alt_text         String?       @db.VarChar(255)
+  link_url         String        @db.VarChar(1000)
+  open_new_tab     Boolean       @default(true)
+  advertiser_name  String?       @db.VarChar(150)
+  advertiser_phone String?       @db.VarChar(10)
+  note             String?       @db.VarChar(500)
+  status           ads_status    @default(draft)
+  starts_at        DateTime?     @db.DateTime(0)
+  ends_at          DateTime?     @db.DateTime(0)
+  province_id      Int?          @db.UnsignedSmallInt
+  sort_order       Int           @default(0) @db.SmallInt
+  weight           Int           @default(1) @db.UnsignedTinyInt
+  created_by       BigInt?       @db.UnsignedBigInt
+  created_at       DateTime      @default(now()) @db.DateTime(0)
+  updated_at       DateTime      @default(now()) @db.DateTime(0)
+  deleted_at       DateTime?     @db.DateTime(0)
+  ad_events        ad_events[]
+  ad_stats         ad_stats?
+  users            users?        @relation(fields: [created_by], references: [id], onUpdate: Restrict, map: "fk_ads_creator")
+  ad_placements    ad_placements @relation(fields: [placement_id], references: [id], onUpdate: Restrict, map: "fk_ads_placement")
+  provinces        provinces?    @relation(fields: [province_id], references: [id], onUpdate: Restrict, map: "fk_ads_province")
+
+  @@index([created_by], map: "idx_ads_creator")
+  @@index([province_id], map: "idx_ads_province")
+  @@index([placement_id, status, starts_at, ends_at, sort_order], map: "idx_ads_serve")
 }
 
 enum room_media_kind {
@@ -522,5 +594,17 @@ enum rooms_status {
   rejected
   hidden
   rented
+  expired
+}
+
+enum ad_events_event_type {
+  impression
+  click
+}
+
+enum ads_status {
+  draft
+  active
+  paused
   expired
 }

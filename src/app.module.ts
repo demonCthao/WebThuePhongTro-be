@@ -28,6 +28,10 @@ import { UsersModule } from './users/users.module.js';
 import { ViewingAppointmentsModule } from './viewing_appointments/viewing_appointments.module.js';
 import { WardAliasesModule } from './ward_aliases/ward_aliases.module.js';
 import { WardsModule } from './wards/wards.module.js';
+import { AdEventsModule } from './ad_events/ad_events.module.js';
+import { AdPlacementsModule } from './ad_placements/ad_placements.module.js';
+import { AdStatsModule } from './ad_stats/ad_stats.module.js';
+import { AdsModule } from './ads/ads.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -67,6 +71,10 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     ViewingAppointmentsModule,
     WardAliasesModule,
     WardsModule,
+    AdEventsModule,
+    AdPlacementsModule,
+    AdStatsModule,
+    AdsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

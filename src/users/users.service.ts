@@ -397,7 +397,9 @@ export class UsersService {
   }
 
   // Gửi OTP
-  async sendOtp(userId: number, dto: SendOtpDto) {
+  async sendOtp(id: string, dto: SendOtpDto) {
+    const userId = Number(id)
+    
     const user = await prisma.users.findUnique({
       where: { id: userId },
     });
@@ -476,7 +478,8 @@ export class UsersService {
   }
 
   // Xác thực OTP
-  async verifyOtp(userId: number, dto: VerifyOtpDto) {
+  async verifyOtp(id: string, dto: VerifyOtpDto) {
+    const userId = Number(id)
     const user = await prisma.users.findUnique({
       where: { id: userId },
     });
