@@ -80,18 +80,6 @@ export class RoomsController {
     @UploadedFiles() files: Express.Multer.File[],
     @Req() req: ExpressRequest,
   ) {
-    console.log('CONTENT-TYPE:', req.headers['content-type']);
-
-    console.log(
-      'CONTROLLER FILES:',
-      files?.map((file) => ({
-        name: file.originalname,
-        mimetype: file.mimetype,
-        size: file.size,
-        bufferLength: file.buffer.length,
-        header: file.buffer.subarray(0, 12).toString('hex'),
-      })),
-    );
     files?.map((file) => console.log(
       'BE HASH:',
       createHash('sha256')
