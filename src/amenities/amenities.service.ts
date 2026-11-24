@@ -22,7 +22,19 @@ export class AmenitiesService {
     });
   }
 
-  async findAll({
+  async findAll(): Promise<{ list: AmenitiesSafe[] }> {
+    const [list] = await prisma.$transaction([
+      prisma.amenities.findMany({
+        orderBy: {
+          id: 'desc',
+        },
+      }),
+    ]);
+
+    return { list }
+  }
+
+  async findAmenitiesWithPagination({
     pageIndex = 1,
     pageSize = 10,
   }: FindAllQuery = {}): Promise<PaginatedResult<AmenitiesSafe>> {

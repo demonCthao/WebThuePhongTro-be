@@ -1,11 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { AmenitiesService } from './amenities.service.js';
 import { CreateAmenityDto } from './dto/create-amenity.dto.js';
 import { UpdateAmenityDto } from './dto/update-amenity.dto.js';
+import { FindAllQuery } from '../common/dto/find-all-query.dto.js';
 
 @Controller('amenities')
 export class AmenitiesController {
-  constructor(private readonly amenitiesService: AmenitiesService) {}
+  constructor(private readonly amenitiesService: AmenitiesService) { }
 
   @Post()
   create(@Body() createAmenityDto: CreateAmenityDto) {
@@ -13,6 +14,11 @@ export class AmenitiesController {
   }
 
   @Get()
+  findAmenitiesWithPagination(@Query() query: FindAllQuery) {
+    return this.amenitiesService.findAmenitiesWithPagination(query);
+  }
+
+  @Get("/all")
   findAll() {
     return this.amenitiesService.findAll();
   }

@@ -2,22 +2,28 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
-import { AppModule, ObserveInstrument } from './app.module.js';
+import { AppModule } from './app.module.js';
 import { BigIntInterceptor } from './common/interceptors/bigint.interceptor.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { TransformResponseInterceptor } from './common/interfaces/transform-response.interceptor.js';
+import express from 'express';
+import { join } from 'node:path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    instrument: ObserveInstrument,
+    // instrument: ObserveInstrument,
     logger: ['log', 'error', 'warn', 'debug', 'verbose'],
   });
+  const uploadPath = join(process.cwd(), 'uploads');
   app.useGlobalInterceptors(new BigIntInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: false,
+      },
     }),
   );
 
@@ -41,6 +47,9 @@ async function bootstrap() {
     ],
     credentials: true,
   });
+
+  app.use('/uploads', express.static(uploadPath));
+
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(
     new TransformResponseInterceptor(),

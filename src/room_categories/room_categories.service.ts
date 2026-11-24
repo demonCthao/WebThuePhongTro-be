@@ -22,7 +22,19 @@ export class RoomCategoriesService {
     });
   }
 
-  async findAll({
+  async findAll(): Promise<{ list: RoomCategoriesSafe[] }> {
+    const [list] = await prisma.$transaction([
+      prisma.room_categories.findMany({
+        orderBy: {
+          id: 'desc',
+        },
+      }),
+    ]);
+
+    return { list }
+  }
+
+  async findRoomCategoriesWithPagination({
     pageIndex = 1,
     pageSize = 10,
   }: FindAllQuery = {}): Promise<PaginatedResult<RoomCategoriesSafe>> {

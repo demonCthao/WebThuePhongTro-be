@@ -1,16 +1,38 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import type { Request as ExpressRequest } from 'express';
+import { memoryStorage } from 'multer';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { CreateRoomDto } from './dto/create-room.dto.js';
-import { UpdateRoomDto } from './dto/update-room.dto.js';
 import type { FindAllByCategoryQuery, FindAllByPriceQuery } from './rooms.service.js';
 import { RoomsService } from './rooms.service.js';
+import { createHash } from 'node:crypto';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) { }
 
   @Post()
-  create(@Body() createRoomDto: CreateRoomDto) {
-    return this.roomsService.create(createRoomDto);
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+  )
+  create(
+    @Body() createRoomDto: CreateRoomDto,
+
+    @UploadedFiles()
+    files: Express.Multer.File[],
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.roomsService.create(
+      BigInt(userId),
+      createRoomDto,
+      files ?? [],
+    );
   }
 
   @Get()
@@ -44,8 +66,59 @@ export class RoomsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
-    return this.roomsService.update(BigInt(id), updateRoomDto);
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: memoryStorage(),
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+  )
+  update(
+    @Param('id') id: string,
+    @Body() body: any,
+    @UploadedFiles() files: Express.Multer.File[],
+    @Req() req: ExpressRequest,
+  ) {
+    console.log('CONTENT-TYPE:', req.headers['content-type']);
+
+    console.log(
+      'CONTROLLER FILES:',
+      files?.map((file) => ({
+        name: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        bufferLength: file.buffer.length,
+        header: file.buffer.subarray(0, 12).toString('hex'),
+      })),
+    );
+    files?.map((file) => console.log(
+      'BE HASH:',
+      createHash('sha256')
+        .update(file.buffer)
+        .digest('hex'),
+    ))
+
+    return this.roomsService.update(BigInt(id), body, files ?? []);
+  }
+
+  @Post('test-upload')
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      storage: memoryStorage(),
+    }),
+  )
+  testUpload(
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return files?.map((file) => ({
+      name: file.originalname,
+      size: file.size,
+      header: file.buffer.subarray(0, 12).toString('hex'),
+      hash: createHash('sha256')
+        .update(file.buffer)
+        .digest('hex'),
+    }));
   }
 
   @Delete(':id')

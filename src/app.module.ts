@@ -1,7 +1,10 @@
+
 import { Module } from '@nestjs/common';
-import { createObserveModule } from '@nestjs/observe';
+import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+
 import { AmenitiesModule } from './amenities/amenities.module.js';
 import { BlogCategoriesModule } from './blog_categories/blog_categories.module.js';
 import { BlogPostTagsModule } from './blog_post_tags/blog_post_tags.module.js';
@@ -32,19 +35,14 @@ import { AdEventsModule } from './ad_events/ad_events.module.js';
 import { AdPlacementsModule } from './ad_placements/ad_placements.module.js';
 import { AdStatsModule } from './ad_stats/ad_stats.module.js';
 import { AdsModule } from './ads/ads.module.js';
-
-export const { ObserveModule, ObserveInstrument } = createObserveModule();
+import { UploadsModule } from './modules/uploads/uploads.module.js';
 
 @Module({
   imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com,
-    // then run `npx @nestjs/observe link` to write your key pair into .env.
-    ObserveModule.forRoot({
-      appKey: process.env.OBSERVE_APP_KEY ?? 'YOUR_APP_KEY',
-      appSecret: process.env.OBSERVE_APP_SECRET ?? 'YOUR_APP_SECRET',
-      serviceId: 'thue-tro-backend',
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
+
     AmenitiesModule,
     BlogCategoriesModule,
     BlogPostTagsModule,
@@ -75,8 +73,9 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     AdPlacementsModule,
     AdStatsModule,
     AdsModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
