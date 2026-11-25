@@ -17,8 +17,23 @@ type ViewingAppointmentsSafe = Prisma.viewing_appointmentsGetPayload<{}>;
 @Injectable()
 export class ViewingAppointmentsService {
   create(createViewingAppointmentDto: CreateViewingAppointmentDto) {
+    const { room_id, seeker_id, scheduled_at, ...data } = createViewingAppointmentDto;
+
     return prisma.viewing_appointments.create({
-      data: createViewingAppointmentDto as any,
+      data: {
+        ...data,
+        scheduled_at: new Date(`${scheduled_at}:00`),
+        rooms: {
+          connect: {
+            id: Number(room_id),
+          },
+        },
+        users_viewing_appointments_seeker_idTousers: {
+          connect: {
+            id: seeker_id,
+          },
+        },
+      },
     });
   }
 
@@ -88,6 +103,42 @@ export class ViewingAppointmentsService {
     return prisma.viewing_appointments.delete({
       where: {
         id: id,
+      },
+    });
+  }
+
+  async checkViewAppointmentWithRooms(room_id: number, user_id: bigint): Promise<Boolean> {
+    const appointment = await prisma.viewing_appointments.findFirst({
+      where: {
+        room_id: BigInt(room_id),
+        seeker_id: user_id,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return !!appointment;
+  }
+
+  async findBySeekerId(
+    seekerId: bigint,
+  ): Promise<ViewingAppointmentsSafe[]> {
+    return prisma.viewing_appointments.findMany({
+      where: {
+        seeker_id: seekerId,
+      },
+      include: {
+        rooms: {
+          include: {
+            room_media: true,
+            wards: true,
+            provinces: true,
+          },
+        },
+      },
+      orderBy: {
+        id: 'desc',
       },
     });
   }

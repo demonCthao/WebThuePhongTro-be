@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import type { Request as ExpressRequest } from 'express';
 import { memoryStorage } from 'multer';
@@ -7,11 +7,13 @@ import { CreateRoomDto } from './dto/create-room.dto.js';
 import type { FindAllByCategoryQuery, FindAllByPriceQuery } from './rooms.service.js';
 import { RoomsService } from './rooms.service.js';
 import { createHash } from 'node:crypto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) { }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(
     FilesInterceptor('files', 10, {
